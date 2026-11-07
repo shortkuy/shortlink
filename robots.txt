@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /pricing.html
+Allow: /about.html
+Allow: /contact.html
+Allow: /privacy.html
+Allow: /terms.html
+Allow: /disclaimer.html
+
+# Hidden routes — not indexed
+Disallow: /admin.html
+Disallow: /settings.html
+Disallow: /login.html
+
+# Safelink pages are user-generated and not crawlable (no central index)
+Disallow: /s/
+
+Sitemap: /sitemap.xml

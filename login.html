@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>SafeLink · Owner Login</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container" style="display:grid;place-items:center;min-height:calc(100vh - 200px);padding:40px 0">
+  <div style="max-width:380px;width:100%">
+    <a href="index.html" class="text-muted text-xs" style="display:inline-block;margin-bottom:16px;text-decoration:none">← Back to home</a>
+
+    <div class="card" style="padding:32px">
+      <div style="width:56px;height:56px;margin:0 auto 16px;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:14px;display:grid;place-items:center;font-size:28px">🔒</div>
+      <h1 style="font-size:22px;text-align:center;margin-bottom:6px">Owner Login</h1>
+      <p class="text-muted text-xs text-center mb-4">Enter your PIN to access the dashboard.</p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="pin">PIN</label>
+          <input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="••••••" required style="text-align:center;letter-spacing:0.5em;font-size:18px">
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary btn-block btn-lg">
+          <span id="btnText">🔓 Unlock</span>
+        </button>
+      </form>
+
+      <p class="text-xs text-center mt-4" style="color:var(--text-dim)">
+        This area is restricted to the site owner only.<br>
+        Unauthorized access attempts are logged.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SL = window.SafeLink;
+  if (!SL) return;
+
+  // Redirect to admin if already logged in
+  if (SL.isLoggedIn()) {
+    window.location.href = "admin.html";
+    return;
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var pin = document.getElementById("pin").value;
+    if (!pin) { SL.toast("Please enter your PIN", "error"); return; }
+
+    var btn = document.getElementById("submitBtn");
+    var btnText = document.getElementById("btnText");
+    btn.disabled = true;
+    btnText.innerHTML = '<span class="spinner"></span> Verifying...';
+
+    try {
+      var ok = await SL.login(pin);
+      if (ok) {
+        SL.toast("Welcome back!", "success");
+        setTimeout(function () { window.location.href = "admin.html"; }, 500);
+      } else {
+        SL.toast("Invalid PIN", "error");
+        document.getElementById("pin").value = "";
+        document.getElementById("pin").focus();
+      }
+    } catch (err) {
+      SL.toast("Login failed: " + err.message, "error");
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = "🔓 Unlock";
+    }
+  });
+
+  // Auto-focus
+  document.getElementById("pin").focus();
+})();
+</script>
+
+</body>
+</html>

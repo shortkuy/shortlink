@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SafeLink — shortlink and safelink generator with multi-ad-network support. Pure static site, deploy anywhere.">
+<meta name="theme-color" content="#0a0a14">
+<title>SafeLink · Shortlink & Safelink Generator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="hero-badge">
+      <span class="dot"></span>
+      Works on any browser · Any country · Any device
+    </span>
+    <h1>
+      Shortlink &amp; <span class="gradient-text">Safelink</span> Generator
+    </h1>
+    <p>
+      Create short URLs like <code>domain.com/s/?id=abc123</code> with custom timers and safelink pages.
+      Pure static site — deploy to GitHub Pages, cPanel, Netlify, or any static host. No database needed.
+    </p>
+    <div class="hero-cta">
+      <a href="#generator" class="btn btn-primary btn-lg">Start Creating Links →</a>
+      <a href="pricing.html" class="btn btn-secondary btn-lg">View Pricing</a>
+    </div>
+  </section>
+
+  <!-- Owner access gate (hidden if logged in) -->
+  <section id="ownerGate" class="card" style="display:none">
+    <div style="text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔒</div>
+      <h2 class="section-title">Owner Access Required</h2>
+      <p class="text-muted text-sm mt-2">
+        The link generator is only available to authenticated site owners.
+        If you are the owner, please sign in.
+      </p>
+      <div class="hero-cta">
+        <a href="login.html" class="btn btn-primary">Sign In with PIN</a>
+        <a href="pricing.html" class="btn btn-secondary">View Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Generator (hidden if NOT logged in) -->
+  <section id="generator" style="display:none">
+    <div class="card">
+      <div class="card-title">SAFELINK GENERATOR</div>
+      <h2 class="section-title">Create New Link</h2>
+      <p class="text-muted text-sm mb-4">Fill the destination URL, choose mode, click Generate.</p>
+
+      <form id="generatorForm" autocomplete="off">
+        <div class="field">
+          <label for="url">Destination URL <span style="color:#ef4444">*</span></label>
+          <input type="url" id="url" placeholder="https://www.youtube.com/watch?v=xGaUHUAxs1Q" required>
+        </div>
+
+        <div class="field">
+          <label>Mode</label>
+          <div class="mode-grid">
+            <button type="button" class="mode-btn active" data-mode="shortlink">
+              <div class="mode-btn-title">Shortlink</div>
+              <div class="mode-btn-desc">Auto-redirect after timer</div>
+            </button>
+            <button type="button" class="mode-btn" data-mode="safelink">
+              <div class="mode-btn-title">Safelink</div>
+              <div class="mode-btn-desc">Manual click required</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="timer">Timer (seconds)</label>
+            <input type="number" id="timer" min="0" max="10" value="5">
+          </div>
+          <div class="field">
+            <label for="idLength">ID Length</label>
+            <input type="number" id="idLength" min="5" max="10" value="6">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="title">Custom Title (optional)</label>
+          <input type="text" id="title" placeholder="Leave empty for random article">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg">
+          <span id="genBtnText">⚡ Generate Shortlink</span>
+        </button>
+      </form>
+
+      <div id="resultBox" class="result">
+        <div class="result-label">Your Short URL</div>
+        <div id="resultUrl" class="result-url">...</div>
+        <div id="resultMeta" class="result-meta"></div>
+        <div class="result-actions">
+          <button id="copyBtn" class="btn-icon" type="button">📋 Copy</button>
+          <a id="openBtn" class="btn-icon" target="_blank">↗ Open</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent links (authed only) -->
+  <section id="recentSection" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 class="section-title" style="font-size:18px">Recent Links</h2>
+        <button id="refreshBtn" class="btn-icon" type="button">↻ Refresh</button>
+      </div>
+      <div id="recentList"></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section style="padding:40px 0">
+    <h2 class="text-center" style="font-size:24px;margin-bottom:8px">Why choose SafeLink?</h2>
+    <p class="text-center text-muted text-sm mb-4">
+      Built for monetization. Supports all ad networks. Deploy anywhere.
+    </p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Short URLs</h3>
+        <p>Format /s/?id=abc123, 5-10 chars long.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🛡️</div>
+        <h3>Two Modes</h3>
+        <p>Shortlink (auto-redirect) or Safelink (manual click).</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📦</div>
+        <h3>Static Site</h3>
+        <p>No database. No server. Deploy to GitHub Pages, cPanel, Netlify, anywhere.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🌐</div>
+        <h3>Global Access</h3>
+        <p>Any browser, any IP, any country. No limits.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <h3>Mobile Friendly</h3>
+        <p>Responsive on all devices.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💰</div>
+        <h3>Monetization Ready</h3>
+        <p>Supports AdSense, Adsterra, Monetag, MGid, PropellerAds, and more.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <h3>PIN Protected Admin</h3>
+        <p>Owner-only access to dashboard &amp; settings.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📝</div>
+        <h3>32 Articles Included</h3>
+        <p>Technology, cloud, video, movies, security — ready to display.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🚀</div>
+        <h3>Deploy Anywhere</h3>
+        <p>GitHub Pages, cPanel, Netlify, Vercel, Cloudflare Pages — your choice.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing CTA -->
+  <section style="padding:20px 0 40px;text-align:center">
+    <div class="card" style="border-color:rgba(99,102,241,0.2);background:rgba(99,102,241,0.05)">
+      <h3 style="font-size:15px;margin-bottom:8px">License Required for Commercial Use</h3>
+      <p class="text-muted text-xs mb-4">To use SafeLink on your own domain, choose a license tier:</p>
+      <a href="pricing.html" class="btn btn-primary">View Pricing →</a>
+    </div>
+  </section>
+
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SL = window.SafeLink;
+  if (!SL) return;
+
+  // State
+  var currentMode = SL.config.defaultMode || "shortlink";
+
+  // Check auth and toggle UI
+  function checkAuth() {
+    var authed = SL.isLoggedIn();
+    document.getElementById("ownerGate").style.display = authed ? "none" : "block";
+    document.getElementById("generator").style.display = authed ? "block" : "none";
+    document.getElementById("recentSection").style.display = authed ? "block" : "none";
+    if (authed) refreshRecent();
+  }
+
+  // Mode selector
+  document.querySelectorAll(".mode-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".mode-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode;
+      document.getElementById("genBtnText").textContent = "⚡ Generate " + (currentMode === "safelink" ? "Safelink" : "Shortlink");
+    });
+  });
+
+  // Form submit
+  document.getElementById("generatorForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var url = document.getElementById("url").value.trim();
+    var timer = parseInt(document.getElementById("timer").value, 10) || 0;
+    var idLength = parseInt(document.getElementById("idLength").value, 10) || 6;
+    var title = document.getElementById("title").value.trim();
+
+    if (!url) { SL.toast("Please enter a destination URL first", "error"); return; }
+    if (!SL.isValidUrl(url)) { SL.toast("Invalid URL. Must start with http:// or https://", "error"); return; }
+
+    var btn = e.target.querySelector("button[type=submit]");
+    var origText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+    try {
+      var entry = await SL.createShortLink(url, timer, currentMode, title, idLength);
+      var shortUrl = SL.buildShortUrl(entry);
+      document.getElementById("resultUrl").textContent = shortUrl;
+      document.getElementById("resultMeta").textContent =
+        "Mode: " + entry.mode + " · Timer: " + entry.timer + "s · " +
+        (entry.mode === "safelink" ? "Manual click required" : "Auto-redirect");
+      document.getElementById("openBtn").href = shortUrl;
+      document.getElementById("resultBox").classList.add("show");
+      document.getElementById("url").value = "";
+      document.getElementById("title").value = "";
+      SL.toast("Link created successfully!", "success");
+      refreshRecent();
+    } catch (err) {
+      SL.toast("Failed to create link: " + err.message, "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origText;
+    }
+  });
+
+  // Copy button
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = document.getElementById("resultUrl").textContent;
+    SL.copyText(text)
+      .then(function () { SL.toast("Copied!", "success"); })
+      .catch(function () { SL.toast("Copy failed", "error"); });
+  });
+
+  // Refresh recent
+  async function refreshRecent() {
+    var list = document.getElementById("recentList");
+    list.innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading...</div>';
+    try {
+      var arr = await SL.getAllLinks();
+      arr = arr.sort(function (a, b) {
+        var at = a.createdAt instanceof Date ? a.createdAt.getTime() : (typeof a.createdAt === "string" ? new Date(a.createdAt).getTime() : (a.createdAt || 0));
+        var bt = b.createdAt instanceof Date ? b.createdAt.getTime() : (typeof b.createdAt === "string" ? new Date(b.createdAt).getTime() : (b.createdAt || 0));
+        return bt - at;
+      }).slice(0, 10);
+      if (!arr.length) {
+        list.innerHTML = '<div class="empty-state">No links yet. Create one above ↑</div>';
+        return;
+      }
+      list.innerHTML = arr.map(function (l) {
+        return '' +
+          '<div class="link-row">' +
+            '<div style="flex:1;min-width:0">' +
+              '<div><code class="link-row-id">/s/?id=' + escapeHtml(l.id) + '</code>' +
+                ' <span class="badge">' + escapeHtml(l.mode) + '</span>' +
+                ' <span class="badge">' + l.timer + 's</span>' +
+                ' <span class="badge">' + (l.clicks || 0) + ' clicks</span>' +
+              '</div>' +
+              '<div class="link-row-dest">' + escapeHtml(l.dest) + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:4px">' +
+            '<a href="s/?id=' + encodeURIComponent(l.id) + '" target="_blank" class="btn-icon">↗</a>' +
+            '<button class="btn-icon btn-danger" data-delete="' + escapeHtml(l.id) + '" title="Delete">✕</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      // Attach delete handlers
+      list.querySelectorAll("[data-delete]").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          var id = btn.dataset.delete;
+          if (!confirm("Delete link /s/?id=" + id + "?")) return;
+          await SL.deleteLink(id);
+          SL.toast("Link deleted", "info");
+          refreshRecent();
+        });
+      });
+    } catch (err) {
+      list.innerHTML = '<div class="empty-state" style="color:#fca5a5">Failed to load: ' + escapeHtml(err.message || "Unknown error") + '</div>';
+    }
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", refreshRecent);
+
+  // Escape helper
+  function escapeHtml(str) {
+    if (str == null) return "";
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // Init
+  checkAuth();
+})();
+</script>
+
+</body>
+</html>

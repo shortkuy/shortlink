@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>SafeLink · Admin Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container" style="padding:24px 0 60px">
+  <!-- Auth check -->
+  <div id="authCheck" class="card text-center" style="padding:48px">
+    <div class="spinner spinner-lg" style="margin:0 auto"></div>
+    <p class="text-muted text-sm mt-4">Checking authentication...</p>
+  </div>
+
+  <div id="adminContent" style="display:none">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 style="font-size:22px;display:flex;align-items:center;gap:8px">📊 Developer Dashboard</h1>
+        <p class="text-muted text-xs mt-2">Manage your links and configure SafeLink</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <a href="settings.html" class="btn btn-ghost btn-sm">⚙️ Settings</a>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm" style="color:#fca5a5">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- Stats grid -->
+    <h3 style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:12px">Overview</h3>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total Links</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statClicks">0</div>
+        <div class="stat-label">Total Clicks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statSafelink">0</div>
+        <div class="stat-label">Safelink Mode</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statShortlink">0</div>
+        <div class="stat-label">Shortlink Mode</div>
+      </div>
+    </div>
+
+    <!-- All links -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="font-size:16px">All Links</h2>
+        <button id="refreshBtn" class="btn-icon">↻ Refresh</button>
+      </div>
+      <div id="linksList"></div>
+    </div>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SL = window.SafeLink;
+  if (!SL) return;
+
+  // Auth check
+  if (!SL.isLoggedIn()) {
+    window.location.href = "login.html";
+    return;
+  }
+  document.getElementById("authCheck").style.display = "none";
+  document.getElementById("adminContent").style.display = "block";
+
+  // Load stats
+  async function loadStats() {
+    try {
+      var arr = await SL.getAllLinks();
+      var totalClicks = arr.reduce(function (s, l) { return s + (l.clicks || 0); }, 0);
+      var safelinkCount = arr.filter(function (l) { return l.mode === "safelink"; }).length;
+      var shortlinkCount = arr.filter(function (l) { return l.mode === "shortlink"; }).length;
+      document.getElementById("statTotal").textContent = arr.length;
+      document.getElementById("statClicks").textContent = totalClicks;
+      document.getElementById("statSafelink").textContent = safelinkCount;
+      document.getElementById("statShortlink").textContent = shortlinkCount;
+    } catch (e) {
+      document.getElementById("statTotal").textContent = "!";
+      document.getElementById("statClicks").textContent = "!";
+    }
+  }
+
+  // Load links
+  async function loadLinks() {
+    var list = document.getElementById("linksList");
+    list.innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading...</div>';
+    try {
+      var arr = await SL.getAllLinks();
+      arr = arr.sort(function (a, b) {
+        var at = typeof a.createdAt === "string" ? new Date(a.createdAt).getTime() : (a.createdAt || 0);
+        var bt = typeof b.createdAt === "string" ? new Date(b.createdAt).getTime() : (b.createdAt || 0);
+        return bt - at;
+      });
+
+      if (!arr.length) {
+        list.innerHTML = '<div class="empty-state">No links yet. <a href="index.html" style="color:#a5b4fc">Create one →</a></div>';
+        return;
+      }
+
+      list.innerHTML = arr.map(function (l) {
+        var date = new Date(l.createdAt);
+      return '' +
+        '<div class="link-row">' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+              '<code class="link-row-id">/s/?id=' + escapeHtml(l.id) + '</code>' +
+              '<span class="badge">' + escapeHtml(l.mode) + '</span>' +
+              '<span class="badge">' + l.timer + 's</span>' +
+              '<span class="badge">' + (l.clicks || 0) + ' clicks</span>' +
+            '</div>' +
+            '<div class="link-row-dest">' + escapeHtml(l.dest) + '</div>' +
+            '<div style="font-size:10px;color:var(--text-dim);margin-top:4px">Created ' + date.toLocaleString() + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:4px">' +
+            '<a href="s/?id=' + encodeURIComponent(l.id) + '" target="_blank" class="btn-icon" title="Open">↗</a>' +
+            '<button class="btn-icon btn-danger" data-delete="' + escapeHtml(l.id) + '" title="Delete">✕</button>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+
+    // Attach delete handlers
+    list.querySelectorAll("[data-delete]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var id = btn.dataset.delete;
+        if (!confirm("Delete link /s/?id=" + id + "?")) return;
+        await SL.deleteLink(id);
+        SL.toast("Link deleted", "info");
+        loadStats();
+        loadLinks();
+      });
+    });
+    } catch (err) {
+      list.innerHTML = '<div class="empty-state" style="color:#fca5a5">Failed to load: ' + escapeHtml(err.message || "Unknown error") + '</div>';
+    }
+  }
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    SL.logout();
+    SL.toast("Logged out", "info");
+    setTimeout(function () { window.location.href = "index.html"; }, 500);
+  });
+
+  // Refresh
+  document.getElementById("refreshBtn").addEventListener("click", function () {
+    loadStats();
+    loadLinks();
+    SL.toast("Refreshed", "info");
+  });
+
+  // Init
+  loadStats();
+  loadLinks();
+
+  // Escape helper
+  function escapeHtml(str) {
+    if (str == null) return "";
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

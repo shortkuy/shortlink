@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SafeLink redirect page">
+<meta name="theme-color" content="#0a0a14">
+<meta name="robots" content="noindex, nofollow">
+<title>SafeLink · Redirecting...</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container safelink-page">
+  <div class="safelink-grid">
+
+    <!-- Loading state -->
+    <div id="loadingState" class="card text-center" style="padding:48px">
+      <div class="spinner spinner-lg" style="margin:0 auto"></div>
+      <p class="text-muted text-sm mt-4">Loading...</p>
+    </div>
+
+    <!-- Not found state -->
+    <div id="notFoundState" class="card text-center" style="display:none;padding:48px">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <h2 style="font-size:22px;margin-bottom:8px">Link not found</h2>
+      <p class="text-muted text-sm mb-4">
+        The short link was not found in this browser. SafeLink uses localStorage (no database),
+        so links created on another device cannot be opened here.
+      </p>
+      <a href="../index.html" class="btn btn-primary">Go to homepage →</a>
+    </div>
+
+    <!-- Article + redirect -->
+    <article id="articleContent" style="display:none">
+      <!-- Article header (centered) -->
+      <header class="article-header">
+        <span class="article-badge" id="articleCategory"></span>
+        <h1 class="article-title" id="articleTitle"></h1>
+        <p class="article-meta" id="articleMeta"></p>
+      </header>
+
+      <!-- Article intro -->
+      <section class="article-intro" id="articleIntro"></section>
+
+      <!-- AD SLOT TOP -->
+      <div class="ad-slot" id="adTop"></div>
+
+      <!-- Timer + redirect button -->
+      <section class="card timer-card" id="actionBox">
+        <!-- Countdown state -->
+        <div id="countdownState">
+          <p class="text-muted text-sm mb-2">⏱ Redirecting in</p>
+          <div class="timer-circle">
+            <svg viewBox="0 0 120 120">
+              <defs>
+                <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#ec4899"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="54" class="track"/>
+              <circle cx="60" cy="60" r="54" class="progress" id="timerProgress"/>
+            </svg>
+            <div>
+              <div class="timer-number" id="timerNumber">5</div>
+              <div class="timer-label">seconds</div>
+            </div>
+          </div>
+          <p class="text-muted text-xs mb-4">Please wait, you will be redirected automatically.</p>
+          <button class="btn btn-primary btn-lg" disabled>
+            <span class="spinner"></span>
+            Continue
+          </button>
+        </div>
+
+        <!-- Safelink ready state (manual click) -->
+        <div id="safelinkReadyState" style="display:none">
+          <p style="color:#10b981;font-weight:600;margin-bottom:12px">✅ Link ready</p>
+          <button id="continueBtn" class="btn btn-primary btn-lg">
+            ↗ Click here to continue
+          </button>
+          <p class="text-muted text-xs mt-4">
+            By clicking the button above, you will be redirected to the destination URL.
+          </p>
+        </div>
+
+        <!-- Shortlink redirecting state -->
+        <div id="shortlinkRedirectState" style="display:none">
+          <p style="color:#10b981;font-weight:600;margin-bottom:12px">↗ Redirecting...</p>
+          <button class="btn btn-primary btn-lg" disabled>
+            <span class="spinner"></span>
+            Continue Now
+          </button>
+        </div>
+      </section>
+
+      <!-- AD SLOT BOTTOM -->
+      <div class="ad-slot" id="adBottom"></div>
+
+      <!-- Article body -->
+      <section class="article-body" id="articleBody"></section>
+
+      <!-- Trust footer -->
+      <section style="margin-top:32px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span>This article is written for educational purposes.</span>
+        <a href="../about.html" style="color:#818cf8">About SafeLink</a>
+      </section>
+    </article>
+
+  </div>
+</div>
+
+<div data-footer></div>
+
+<!-- Custom JS injection slot (added at end so DOM is ready) -->
+<div id="customJsSlot"></div>
+
+<script src="../js/config.js"></script>
+<script src="../js/articles.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/safelink.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SL = window.SafeLink;
+  if (!SL) return;
+
+  var settings = SL.getSettings();
+  var redirecting = false;
+
+  // Parse ?id= from URL
+  var params = new URLSearchParams(window.location.search);
+  var id = params.get("id");
+
+  function showState(state) {
+    ["loadingState", "notFoundState", "articleContent"].forEach(function (s) {
+      document.getElementById(s).style.display = "none";
+    });
+    document.getElementById(state).style.display = "block";
+  }
+
+  if (!id) {
+    document.getElementById("notFoundState").querySelector("h2").textContent = "No link ID provided";
+    document.getElementById("notFoundState").querySelector("p").textContent =
+      "The URL must include ?id=xxx parameter. Example: /s/?id=abc123";
+    showState("notFoundState");
+  } else {
+    // Async fetch from Supabase
+    showState("loadingState");
+    SL.getLink(id).then(function (entry) {
+      if (!entry) {
+        showState("notFoundState");
+      } else if (!SL.isValidUrl(entry.dest)) {
+        document.getElementById("notFoundState").querySelector("h2").textContent = "Invalid destination";
+        document.getElementById("notFoundState").querySelector("p").textContent =
+          "The destination URL stored for this short link is invalid or corrupted.";
+        showState("notFoundState");
+      } else {
+        renderArticle(entry);
+      }
+    }).catch(function (err) {
+      console.error("Failed to load link:", err);
+      document.getElementById("notFoundState").querySelector("h2").textContent = "Failed to load";
+      document.getElementById("notFoundState").querySelector("p").textContent =
+        "Error: " + (err.message || "Could not connect to backend. Please try again later.");
+      showState("notFoundState");
+    });
+  }
+
+  function renderArticle(entry) {
+    var article = SL.getSeededArticle(entry.id);
+    if (!article) {
+      showState("notFoundState");
+      return;
+    }
+
+    // Use custom title if provided
+    var title = entry.title || article.title;
+    document.getElementById("articleCategory").textContent = article.category;
+    document.getElementById("articleTitle").textContent = title;
+    document.getElementById("articleMeta").textContent = article.readTime + " min read · SafeLink";
+    document.getElementById("articleIntro").textContent = article.intro;
+    document.getElementById("articleBody").innerHTML = article.body;
+
+    // Inject ad slots
+    var adTop = document.getElementById("adTop");
+    var adBottom = document.getElementById("adBottom");
+    if (settings.ads && settings.ads.enabled) {
+      var adTopCode = settings.ads.customAdTop || settings.ads.adsterraCode || settings.ads.monetagCode || "";
+      var adBottomCode = settings.ads.customAdBottom || settings.ads.mgidCode || settings.ads.propellerAdsCode || "";
+      if (adTopCode.trim()) adTop.innerHTML = adTopCode;
+      if (adBottomCode.trim()) adBottom.innerHTML = adBottomCode;
+    }
+
+    // Inject custom CSS
+    if (settings.inject && settings.inject.customCss && settings.inject.customCss.trim()) {
+      var style = document.createElement("style");
+      style.setAttribute("data-safelink-custom-css", "true");
+      style.textContent = settings.inject.customCss;
+      document.head.appendChild(style);
+    }
+
+    // Inject custom JS
+    if (settings.inject && settings.inject.customJs && settings.inject.customJs.trim()) {
+      document.getElementById("customJsSlot").innerHTML = settings.inject.customJs;
+    }
+
+    // Increment click counter (async, fire-and-forget)
+    SL.incrementClicks(entry.id);
+
+    // Show article
+    showState("articleContent");
+
+    // Setup timer & redirect behavior based on mode
+    setupRedirect(entry);
+  }
+
+  function setupRedirect(entry) {
+    var isSafelink = entry.mode === "safelink";
+    var timer = Math.max(0, Math.min(10, entry.timer !== undefined ? entry.timer : 1));
+
+    if (isSafelink) {
+      // Safelink mode: show "Click here to continue" button, no auto-redirect
+      document.getElementById("countdownState").style.display = "none";
+      document.getElementById("safelinkReadyState").style.display = "block";
+      document.getElementById("shortlinkRedirectState").style.display = "none";
+      document.getElementById("continueBtn").addEventListener("click", function () {
+        window.location.href = entry.dest;
+      });
+    } else {
+      // Shortlink mode: auto-redirect after timer
+      if (timer === 0) {
+        // Timer 0: redirect almost immediately (slight delay for UX)
+        document.getElementById("countdownState").style.display = "none";
+        document.getElementById("safelinkReadyState").style.display = "none";
+        document.getElementById("shortlinkRedirectState").style.display = "block";
+        setTimeout(function () {
+          window.location.href = entry.dest;
+        }, 500);
+      } else {
+        // Timer 1+: show countdown then auto-redirect
+        var remaining = timer;
+        var circumference = 2 * Math.PI * 54;
+        var progressEl = document.getElementById("timerProgress");
+        var numberEl = document.getElementById("timerNumber");
+
+        function updateTimer() {
+          numberEl.textContent = remaining;
+          var progress = ((timer - remaining) / timer) * 100;
+          var offset = circumference * (1 - progress / 100);
+          progressEl.style.strokeDashoffset = offset;
+        }
+        updateTimer();
+
+        var interval = setInterval(function () {
+          remaining--;
+          updateTimer();
+          if (remaining <= 0) {
+            clearInterval(interval);
+            // Switch to redirecting state
+            document.getElementById("countdownState").style.display = "none";
+            document.getElementById("safelinkReadyState").style.display = "none";
+            document.getElementById("shortlinkRedirectState").style.display = "block";
+            // Auto-redirect
+            setTimeout(function () {
+              window.location.href = entry.dest;
+            }, 300);
+          }
+        }, 1000);
+      }
+    }
+  }
+})();
+</script>
+
+</body>
+</html>

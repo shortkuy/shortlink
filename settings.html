@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>SafeLink · Developer Settings</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container" style="padding:24px 0 60px;max-width:800px">
+  <a href="admin.html" class="text-muted text-xs" style="display:inline-block;margin-bottom:16px;text-decoration:none">← Back to dashboard</a>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:22px;display:flex;align-items:center;gap:8px">⚙️ Developer Settings</h1>
+      <p class="text-muted text-xs mt-2">Configure default values, ads, and branding</p>
+    </div>
+    <button id="logoutBtn" class="btn btn-ghost btn-sm" style="color:#fca5a5">🚪 Logout</button>
+  </div>
+
+  <div id="authCheck" class="card text-center" style="padding:48px">
+    <div class="spinner spinner-lg" style="margin:0 auto"></div>
+    <p class="text-muted text-sm mt-4">Checking authentication...</p>
+  </div>
+
+  <div id="settingsContent" style="display:none">
+    <form id="settingsForm">
+      <!-- Branding -->
+      <div class="card">
+        <h2 style="font-size:14px;margin-bottom:16px">🏷️ Branding</h2>
+        <div class="field">
+          <label for="brand">Site Name</label>
+          <input type="text" id="brand" placeholder="SafeLink">
+          <div class="field-help">Brand name shown in header &amp; footer</div>
+        </div>
+        <div class="field">
+          <label for="tagline">Tagline</label>
+          <input type="text" id="tagline" placeholder="Subtitle shown on landing page">
+        </div>
+      </div>
+
+      <!-- Defaults -->
+      <div class="card">
+        <h2 style="font-size:14px;margin-bottom:16px">⚙️ Defaults</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="defaultTimer">Default Timer (sec)</label>
+            <input type="number" id="defaultTimer" min="0" max="10">
+            <div class="field-help">0-10 seconds. 0 = instant redirect</div>
+          </div>
+          <div class="field">
+            <label for="defaultIdLength">Default ID Length</label>
+            <input type="number" id="defaultIdLength" min="5" max="10">
+            <div class="field-help">5-10 characters</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="defaultMode">Default Mode</label>
+          <select id="defaultMode">
+            <option value="safelink">safelink (manual click)</option>
+            <option value="shortlink">shortlink (auto-redirect)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Ads -->
+      <div class="card">
+        <h2 style="font-size:14px;margin-bottom:16px">💰 Monetization</h2>
+        <div class="field">
+          <label for="adsEnabled">Enable Ads (Master Switch)</label>
+          <select id="adsEnabled">
+            <option value="true">true (show all ads)</option>
+            <option value="false">false (hide all ads)</option>
+          </select>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:12px">▸ Google AdSense</p>
+          <div class="field">
+            <label for="adsenseClient">AdSense Client ID</label>
+            <input type="text" id="adsenseClient" placeholder="ca-pub-1234567890123456">
+          </div>
+          <div class="field">
+            <label for="adsenseSlot">AdSense Slot ID</label>
+            <input type="text" id="adsenseSlot" placeholder="1234567890">
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:12px">▸ Adsterra</p>
+          <div class="field">
+            <label for="adsterraCode">Adsterra Banner Code (full script)</label>
+            <textarea id="adsterraCode" rows="5" placeholder="Paste full Adsterra banner script here..."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:12px">▸ Monetag</p>
+          <div class="field">
+            <label for="monetagCode">Monetag Banner Code (full script)</label>
+            <textarea id="monetagCode" rows="5" placeholder="Paste full Monetag banner script here..."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:12px">▸ MGid</p>
+          <div class="field">
+            <label for="mgidCode">MGid Widget Code (full script)</label>
+            <textarea id="mgidCode" rows="5" placeholder="Paste full MGid widget script here..."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#a5b4fc;margin-bottom:12px">▸ PropellerAds</p>
+          <div class="field">
+            <label for="propellerAdsCode">PropellerAds Code (full script)</label>
+            <textarea id="propellerAdsCode" rows="5" placeholder="Paste full PropellerAds script here..."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;font-weight:600;color:#f9a8d4;margin-bottom:12px">▸ Custom Banner Slots (above &amp; below button)</p>
+          <div class="field">
+            <label for="customAdTop">Custom Ad — Above Button</label>
+            <textarea id="customAdTop" rows="4" placeholder="Any HTML/JS to render above the redirect button"></textarea>
+          </div>
+          <div class="field">
+            <label for="customAdBottom">Custom Ad — Below Button</label>
+            <textarea id="customAdBottom" rows="4" placeholder="Any HTML/JS to render below the redirect button"></textarea>
+          </div>
+          <div class="field-help">These slots render above &amp; below the redirect button on safelink pages. Paste any ad code (HTML or JS) here.</div>
+        </div>
+
+        <p class="text-xs text-muted" style="margin-top:16px;color:var(--text-dim)">
+          SafeLink supports Google AdSense, Adsterra, Monetag, MGid, PropellerAds, Media.net, Admob,
+          and any ad network. Enable multiple networks simultaneously for A/B testing or maximum fill rate.
+        </p>
+      </div>
+
+      <!-- Script injection -->
+      <div class="card">
+        <h2 style="font-size:14px;margin-bottom:16px">🛠️ Script Injection (Advanced)</h2>
+        <div class="field">
+          <label for="customCss">Custom CSS</label>
+          <textarea id="customCss" rows="5" placeholder="/* Custom CSS injected into safelink pages */"></textarea>
+        </div>
+        <div class="field">
+          <label for="customJs">Custom JavaScript</label>
+          <textarea id="customJs" rows="5" placeholder="<!-- Custom JS injected into safelink pages. Supports <script> tags. -->"></textarea>
+        </div>
+        <div class="field">
+          <label for="customHead">Custom Head HTML</label>
+          <textarea id="customHead" rows="4" placeholder="<!-- HTML injected into <head> (meta verification, fonts, etc.) -->"></textarea>
+        </div>
+        <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px;font-size:11px;color:#fcd34d;margin-top:12px">
+          <strong>⚠ Caution:</strong> Custom JS is injected as raw HTML/JS into safelink pages.
+          Only paste code from trusted sources. Malformed scripts can break the page.
+          Wrap inline JS in &lt;script&gt;...&lt;/script&gt; tags.
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button type="submit" class="btn btn-primary btn-lg">💾 Save Settings</button>
+        <button type="button" id="resetBtn" class="btn btn-ghost btn-lg">↺ Reset to Defaults</button>
+        <a href="admin.html" class="btn btn-ghost btn-lg">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SL = window.SafeLink;
+  if (!SL) return;
+
+  // Auth check
+  if (!SL.isLoggedIn()) {
+    window.location.href = "login.html";
+    return;
+  }
+  document.getElementById("authCheck").style.display = "none";
+  document.getElementById("settingsContent").style.display = "block";
+
+  // Load current settings
+  var settings = SL.getSettings();
+
+  // Populate form with merged settings (config defaults + localStorage overrides)
+  function populateForm() {
+    var cfg = SL.config;
+    var ads = settings.ads || cfg.ads || {};
+    var inject = settings.inject || cfg.inject || {};
+
+    document.getElementById("brand").value = settings.brand || cfg.brand || "SafeLink";
+    document.getElementById("tagline").value = settings.tagline || cfg.tagline || "";
+    document.getElementById("defaultTimer").value = cfg.defaultTimer || 5;
+    document.getElementById("defaultIdLength").value = cfg.defaultIdLength || 6;
+    document.getElementById("defaultMode").value = cfg.defaultMode || "safelink";
+    document.getElementById("adsEnabled").value = String(ads.enabled !== false);
+    document.getElementById("adsenseClient").value = ads.adsenseClient || "";
+    document.getElementById("adsenseSlot").value = ads.adsenseSlot || "";
+    document.getElementById("adsterraCode").value = ads.adsterraCode || "";
+    document.getElementById("monetagCode").value = ads.monetagCode || "";
+    document.getElementById("mgidCode").value = ads.mgidCode || "";
+    document.getElementById("propellerAdsCode").value = ads.propellerAdsCode || "";
+    document.getElementById("customAdTop").value = ads.customAdTop || "";
+    document.getElementById("customAdBottom").value = ads.customAdBottom || "";
+    document.getElementById("customCss").value = inject.customCss || "";
+    document.getElementById("customJs").value = inject.customJs || "";
+    document.getElementById("customHead").value = inject.customHead || "";
+  }
+
+  populateForm();
+
+  // Save handler
+  document.getElementById("settingsForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var newSettings = {
+      brand: document.getElementById("brand").value,
+      tagline: document.getElementById("tagline").value,
+      ads: {
+        enabled: document.getElementById("adsEnabled").value === "true",
+        adsenseClient: document.getElementById("adsenseClient").value,
+        adsenseSlot: document.getElementById("adsenseSlot").value,
+        adsterraCode: document.getElementById("adsterraCode").value,
+        monetagCode: document.getElementById("monetagCode").value,
+        mgidCode: document.getElementById("mgidCode").value,
+        propellerAdsCode: document.getElementById("propellerAdsCode").value,
+        customAdTop: document.getElementById("customAdTop").value,
+        customAdBottom: document.getElementById("customAdBottom").value
+      },
+      inject: {
+        customCss: document.getElementById("customCss").value,
+        customJs: document.getElementById("customJs").value,
+        customHead: document.getElementById("customHead").value
+      }
+    };
+
+    // Note: defaultTimer, defaultMode, defaultIdLength are in config.js, not localStorage
+    // (because they affect new link generation). User must edit config.js to change those.
+
+    if (SL.saveSettings(newSettings)) {
+      SL.toast("Settings saved!", "success");
+    } else {
+      SL.toast("Failed to save settings", "error");
+    }
+  });
+
+  // Reset
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    if (!confirm("Reset all settings to defaults from config.js?")) return;
+    SL.resetSettings();
+    settings = SL.getSettings();
+    populateForm();
+    SL.toast("Reset to defaults", "info");
+  });
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    SL.logout();
+    SL.toast("Logged out", "info");
+    setTimeout(function () { window.location.href = "index.html"; }, 500);
+  });
+})();
+</script>
+
+</body>
+</html>

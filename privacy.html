@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SafeLink Privacy Policy. We do not collect, store, or transmit your personal data.">
+<title>Privacy Policy · SafeLink</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container" style="padding:40px 0 60px;max-width:780px">
+  <h1 style="font-size:32px;margin-bottom:4px">Privacy Policy</h1>
+  <p class="text-muted text-xs mb-4">Last updated: November 2026</p>
+
+  <div class="card article-body" style="padding:32px">
+    <p>This Privacy Policy describes how SafeLink (the "Service") handles information when you use our website. By using the Service, you agree to the practices described in this policy.</p>
+    <p style="margin-top:14px"><strong>The short version: we do not collect, store, or transmit any personal data. Everything you do on SafeLink stays in your browser's localStorage.</strong></p>
+
+    <h3>1. Information we collect</h3>
+    <p><strong>We do not collect any personal information.</strong> SafeLink is a static website with no server-side code, no database, and no analytics. We do not use cookies, local shared objects, or similar technologies to identify you.</p>
+    <p>The only data stored on your device is the link mapping itself (the short ID and the destination URL you entered), which is saved to your browser's <code>localStorage</code> under the key <code>safelink_links_v5</code>. This data never leaves your device.</p>
+
+    <h3>2. How the Service works</h3>
+    <p>When you generate a shortlink, the following happens entirely in your browser:</p>
+    <ul>
+      <li>A random short ID (e.g. <code>k9Xz2a</code>) is generated using the browser's secure random number generator.</li>
+      <li>The mapping <code>short ID → destination URL</code> is saved to <code>localStorage</code>.</li>
+      <li>You receive a short URL like <code>https://your-domain.com/s/?id=k9Xz2a</code>.</li>
+    </ul>
+    <p>When someone visits that URL, SafeLink reads the destination from <code>localStorage</code> and displays a safelink page with an article and countdown timer before redirecting.</p>
+
+    <h3>3. Data storage and persistence</h3>
+    <p>All link mappings are stored in your browser's <code>localStorage</code>. This data:</p>
+    <ul>
+      <li>Is stored only on the device and browser where it was created.</li>
+      <li>Cannot be accessed by other browsers, devices, or websites.</li>
+      <li>Persists across browser sessions until you explicitly clear it.</li>
+      <li>Will be deleted if you clear your browser's site data, localStorage, or "site settings".</li>
+    </ul>
+
+    <h3>4. Advertising</h3>
+    <p>SafeLink supports monetization through advertising. The website owner may display ads on safelink pages through any ad network, including but not limited to Google AdSense, Adsterra, Monetag, MGid, PropellerAds, Media.net, and Admob. These ad networks may set their own cookies and collect data according to their own privacy policies. We encourage you to review the privacy policies of any ad networks that may be present.</p>
+
+    <h3>5. Destination URLs</h3>
+    <p>When you generate a shortlink, the destination URL you provide is stored in your browser's localStorage. SafeLink does not crawl, scan, or verify destination URLs. The website owner is not responsible for the content of destination URLs. See our <a href="disclaimer.html">Disclaimer</a> for more details.</p>
+
+    <h3>6. Children's privacy</h3>
+    <p>SafeLink is intended for general audiences. We do not knowingly collect any information from children under the age of 13. If you believe a child has provided personal information to us (although our Service does not request any), please contact us so we can investigate.</p>
+
+    <h3>7. Your rights</h3>
+    <p>Because we do not collect personal data, traditional data-subject rights (access, deletion, portability) do not apply. However, you have full control over the data stored in your browser:</p>
+    <ul>
+      <li><strong>View:</strong> Open the admin dashboard to see all links you've created.</li>
+      <li><strong>Delete individual links:</strong> Use the delete button next to each link.</li>
+      <li><strong>Delete all data:</strong> Clear your browser's site data or use your browser's "Clear browsing data" feature.</li>
+    </ul>
+
+    <h3>8. Security</h3>
+    <p>Because SafeLink stores no data on its servers (there are no servers), there is no central database that could be breached. The only data at risk is the localStorage on your device, which is accessible to anyone with physical access to your device or to malicious scripts running on the same origin. We recommend using a strong device password and not installing untrusted browser extensions.</p>
+
+    <h3>9. Changes to this policy</h3>
+    <p>We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top of this page. We encourage you to review this page periodically.</p>
+
+    <h3>10. Contact</h3>
+    <p>If you have any questions about this Privacy Policy, please <a href="contact.html">contact us</a>.</p>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+
+</body>
+</html>

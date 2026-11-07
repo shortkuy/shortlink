@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Learn about SafeLink — a static shortlink and safelink generator built for monetization.">
+<title>About · SafeLink</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div data-header></div>
+
+<div class="container" style="padding:40px 0 60px;max-width:780px">
+  <h1 style="font-size:32px;margin-bottom:8px">About SafeLink</h1>
+  <p class="text-muted mb-4">A static shortlink &amp; safelink generator. Built for monetization, deploy anywhere.</p>
+
+  <div class="card article-body" style="padding:32px">
+    <h3>What is SafeLink?</h3>
+    <p>SafeLink is a static website that lets you create short URLs (like <code>domain.com/s/?id=abc123</code>) and safelink pages — intermediate pages that show an article and a countdown timer before redirecting visitors to their destination. It is designed to be deployed to GitHub Pages, cPanel, Netlify, Vercel, Cloudflare Pages, or any static web host, with absolutely no server-side code or database required.</p>
+
+    <h3>Why we built it</h3>
+    <p>Most existing shortlink services either cost money, run ads that you cannot control, or store your data on servers you do not own. SafeLink flips that model: you deploy it on your own hosting (GitHub Pages, cPanel, Netlify, etc.), and you keep full control over every link and every ad slot.</p>
+    <p>The project is built for site owners who want to monetize traffic — whether you run a download portal, a blog, or a content site. The safelink page can show your own articles and your own ads, so 100% of the revenue goes to you.</p>
+
+    <h3>How it works</h3>
+    <ol>
+      <li>You enter a destination URL (e.g. a YouTube link).</li>
+      <li>SafeLink generates a random 5–10 character ID, e.g. <code>k9Xz2a</code>, and stores the mapping in your browser localStorage.</li>
+      <li>You receive a short URL like <code>https://your-domain.com/s/?id=k9Xz2a</code>.</li>
+      <li>When someone visits that URL, SafeLink looks up the destination from localStorage, displays an article page with a countdown timer, then redirects them to the destination.</li>
+      <li>Two modes: <strong>Shortlink</strong> (auto-redirects when timer ends) and <strong>Safelink</strong> (requires the visitor to click a button manually — better for monetization because it forces an ad impression).</li>
+    </ol>
+
+    <h3>Key principles</h3>
+    <ul>
+      <li><strong>No database:</strong> All mappings live in browser localStorage. No backend to maintain or pay for.</li>
+      <li><strong>No server:</strong> Pure static site (HTML, CSS, JS). Deploy to GitHub Pages, cPanel, Netlify, anywhere.</li>
+      <li><strong>Self-hosted:</strong> You own the files. No third-party servers see your traffic.</li>
+      <li><strong>Monetization ready:</strong> Supports Google AdSense, Adsterra, Monetag, MGid, PropellerAds, and any ad network.</li>
+      <li><strong>Global:</strong> Works on any browser, any IP, any country. No geographic limits.</li>
+    </ul>
+
+    <h3>Limitations (be honest)</h3>
+    <ul>
+      <li>Links created in one browser cannot be opened in another browser (localStorage is per-browser).</li>
+      <li>Anyone with the URL can decode the destination (encoding is for shortening, not for secrecy).</li>
+      <li>Clearing your browser data will erase all generated links from that browser.</li>
+    </ul>
+    <p>If you need cross-device links or secret URLs, you need a database-backed service — SafeLink static is not the right tool for those use cases.</p>
+
+    <h3>Licensing</h3>
+    <p>SafeLink is a commercial product. Deploying SafeLink on your own domain requires a valid license. We offer three tiers — <strong>Newbie (Rp 150K)</strong>, <strong>Pro (Rp 250K)</strong>, and <strong>Advanced (Rp 500K)</strong> — to fit personal, agency, and enterprise use cases. See our <a href="pricing.html">pricing page</a> for details.</p>
+
+    <h3>Built with</h3>
+    <p>SafeLink static is built with pure HTML, CSS, and vanilla JavaScript. No build step, no dependencies, no framework. Just open the files in a browser or upload to any static host.</p>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/config.js"></script>
+<script src="js/articles.js"></script>
+<script src="js/api.js"></script>
+<script src="js/safelink.js"></script>
+<script src="js/ui.js"></script>
+
+</body>
+</html>
