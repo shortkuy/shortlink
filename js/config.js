@@ -22,7 +22,7 @@ window.SAFELINK_CONFIG = {
   // === Branding ===
   brand: "SafeLink",
   tagline: "Shortlink & Safelink Generator",
-  version: "5.3-shared",
+  version: "5.3.1-shared",
 
   // === PIN Protection ===
   // Hash of the owner PIN (default: 123456 — CHANGE THIS!)

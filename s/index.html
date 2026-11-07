@@ -144,31 +144,35 @@
     document.getElementById(state).style.display = "block";
   }
 
+  // Helper: redirect to 404 page
+  function redirectTo404() {
+    var path = window.location.pathname;
+    var basepath = path.substring(0, path.lastIndexOf("/")) || "";
+    var parentPath = basepath.substring(0, basepath.lastIndexOf("/")) || "";
+    var url404 = window.location.origin + parentPath + "/404.html";
+    window.location.href = url404;
+  }
+
   if (!id) {
-    document.getElementById("notFoundState").querySelector("h2").textContent = "No link ID provided";
-    document.getElementById("notFoundState").querySelector("p").textContent =
-      "The URL must include ?id=xxx parameter. Example: /s/?id=abc123";
-    showState("notFoundState");
+    // No ID provided → redirect to 404
+    redirectTo404();
   } else {
-    // Async fetch from Supabase
+    // Async fetch from PHP API
     showState("loadingState");
     SL.getLink(id).then(function (entry) {
       if (!entry) {
-        showState("notFoundState");
+        // Link not found → redirect to 404
+        redirectTo404();
       } else if (!SL.isValidUrl(entry.dest)) {
-        document.getElementById("notFoundState").querySelector("h2").textContent = "Invalid destination";
-        document.getElementById("notFoundState").querySelector("p").textContent =
-          "The destination URL stored for this short link is invalid or corrupted.";
-        showState("notFoundState");
+        // Invalid destination → redirect to 404
+        redirectTo404();
       } else {
         renderArticle(entry);
       }
     }).catch(function (err) {
       console.error("Failed to load link:", err);
-      document.getElementById("notFoundState").querySelector("h2").textContent = "Failed to load";
-      document.getElementById("notFoundState").querySelector("p").textContent =
-        "Error: " + (err.message || "Could not connect to backend. Please try again later.");
-      showState("notFoundState");
+      // API error → redirect to 404 after 3 seconds
+      setTimeout(redirectTo404, 3000);
     });
   }
 
@@ -221,29 +225,39 @@
   }
 
   function setupRedirect(entry) {
-    var isSafelink = entry.mode === "safelink";
-    var timer = Math.max(0, Math.min(10, entry.timer !== undefined ? entry.timer : 1));
+    // Normalize: ensure timer is integer, mode is lowercase string
+    var mode = String(entry.mode || "safelink").toLowerCase();
+    var timer = parseInt(entry.timer, 10);
+    if (isNaN(timer)) timer = 1;
+    timer = Math.max(0, Math.min(10, timer));
+    var dest = entry.dest;
 
-    if (isSafelink) {
-      // Safelink mode: show "Click here to continue" button, no auto-redirect
+    if (mode === "safelink") {
+      // Safelink mode: manual click, no auto-redirect
       document.getElementById("countdownState").style.display = "none";
       document.getElementById("safelinkReadyState").style.display = "block";
       document.getElementById("shortlinkRedirectState").style.display = "none";
       document.getElementById("continueBtn").addEventListener("click", function () {
-        window.location.href = entry.dest;
+        window.location.href = dest;
       });
     } else {
-      // Shortlink mode: auto-redirect after timer
-      if (timer === 0) {
-        // Timer 0: redirect almost immediately (slight delay for UX)
+      // Shortlink mode: auto-redirect
+      // For timer 0-2: simple setTimeout (no complex countdown to avoid bugs)
+      if (timer <= 2) {
+        // Show "Redirecting..." state immediately
         document.getElementById("countdownState").style.display = "none";
         document.getElementById("safelinkReadyState").style.display = "none";
         document.getElementById("shortlinkRedirectState").style.display = "block";
+
+        // Calculate delay: timer 0 = 500ms, 1 = 1000ms, 2 = 2000ms
+        var delay = (timer === 0) ? 500 : (timer * 1000);
+
+        // Auto-redirect
         setTimeout(function () {
-          window.location.href = entry.dest;
-        }, 500);
+          window.location.href = dest;
+        }, delay);
       } else {
-        // Timer 1+: show countdown then auto-redirect
+        // Timer 3+: visual countdown then redirect
         var remaining = timer;
         var circumference = 2 * Math.PI * 54;
         var progressEl = document.getElementById("timerProgress");
@@ -262,13 +276,11 @@
           updateTimer();
           if (remaining <= 0) {
             clearInterval(interval);
-            // Switch to redirecting state
             document.getElementById("countdownState").style.display = "none";
             document.getElementById("safelinkReadyState").style.display = "none";
             document.getElementById("shortlinkRedirectState").style.display = "block";
-            // Auto-redirect
             setTimeout(function () {
-              window.location.href = entry.dest;
+              window.location.href = dest;
             }, 300);
           }
         }, 1000);
